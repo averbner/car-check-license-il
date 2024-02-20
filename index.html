@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <title>License Car</title>
+    <style>
+        body{
+            padding: 10px;
+        }
+        .element{
+            margin-bottom: 10px;
+        }
+        #spinner{
+            margin: 0 auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="row">
+        <div class="col-md-12">
+            <input type="text" id="number" class="form-control element" style="width: 100%;" placeholder="License Number">
+        </div>
+        <div class="col-md-12">
+            <button type="button" class="btn btn-info element" id="send" style="width: 100%;">Send</button>
+        </div>
+        <div id="spinner">
+            <div class="spinner-border text-info" role="status"></div>
+        </div>
+        <div id="results" class="col-md-12"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script>
+
+        $('#send').on('click', function(){
+            $('#results').html('');
+            $('#spinner').css('display','block');
+            let number = $('#number').val();
+            if (number == ''){
+                $('#spinner').css('display','none');
+                $('#results').html('NO DATA');
+                return false;
+            }
+
+            var data = {
+                resource_id: '053cea08-09bc-40ec-8f7a-156f0677aff3',
+                q: number
+            };
+            $.ajax({
+                url: 'https://data.gov.il/api/3/action/datastore_search',
+                data: data,
+                success: function(data) {
+                    let m = data['result']['records'][0];
+                    let res;
+                    if (m != undefined){
+                        res =  
+                            `License: ` + m['mispar_rechev'] + `<br>` +
+                            `Brand: ` + m['tozeret_nm'] + `<br>` +
+                            `Model: ` + m['kinuy_mishari'] + `<br>` +
+                            `Year: ` + m['shnat_yitzur'] + `<br>` +
+                            `Last Test: ` +  moment(m['mivchan_acharon_dt']).format("YYYY-MM-DD")+ `<br>` +
+                            `Valid Test: ` + moment(m['tokef_dt']).format("YYYY-MM-DD");
+                    } else {
+                        res = 'NO DATA';
+                    }
+                    $('#spinner').css('display','none');
+                    $('#results').html(res);
+                }
+            });
+        });
+    </script>
+    
+</body>
+</html>
